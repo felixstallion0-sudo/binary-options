@@ -475,15 +475,13 @@
       }
     }
 
-    // --- UTILITIES & FACTORY RESET ---
     function factoryResetStorage() {
-      if (confirm('Are you sure you want to clear all local accounts and cache? This will reset local records.')) {
+      if (confirm('Are you sure you want to clear all local accounts and cache?')) {
         localStorage.clear();
         location.reload();
       }
     }
 
-    // --- SECURITY & VALIDATION HELPERS ---
     function isValidGmail(email) {
       const re = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
       return re.test(email);
@@ -507,7 +505,6 @@
       setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-2'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
-    // --- AUTHENTICATION FLOWS (FIXED TOGGLE) ---
     function switchAuthView(view) {
       document.getElementById('loginFormContainer').classList.add('hidden');
       document.getElementById('signupFormContainer').classList.add('hidden');
@@ -541,7 +538,7 @@
       
       let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       if (globalUsersDb[email]) {
-        showToast('An account with this Gmail already exists. Please log in or reset password.', 'error');
+        showToast('An account with this Gmail already exists. Please log in.', 'error');
         return;
       }
 
@@ -613,7 +610,7 @@
         return;
       }
       if (!isValidPassword(newPass)) {
-        showToast('New password must be at least 6 characters with 1 uppercase letter and 1 number.', 'error');
+        showToast('Password must be at least 6 characters with 1 uppercase letter and 1 number.', 'error');
         return;
       }
 
@@ -624,7 +621,7 @@
         showToast('Password updated successfully! Please log in.', 'success');
         switchAuthView('login');
       } else {
-        showToast('Error updating password. User record missing.', 'error');
+        showToast('Error updating password.', 'error');
       }
     });
 
@@ -671,7 +668,7 @@
       localStorage.removeItem('stallions_active_session');
       currentUser = null;
       showAuthGate();
-      showToast('Logged out securely. Credentials required to re-enter.', 'info');
+      showToast('Logged out securely.', 'info');
     }
 
     function persistUserData() {
@@ -686,18 +683,14 @@
       }
     }
 
-    // --- LIVE WEBSOCKET TICK STREAM & CANVAS ENGINE ---
     function initTickStream() {
       try {
         ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-        ws.onopen = () => {
-          ws.send(JSON.stringify({ ticks: currentMarket }));
-        };
+        ws.onopen = () => { ws.send(JSON.stringify({ ticks: currentMarket })); };
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
           if (data.msg_type === 'tick' && data.tick) {
-            const price = parseFloat(data.tick.quote);
-            processNewPrice(price);
+            processNewPrice(parseFloat(data.tick.quote));
           }
         };
         ws.onerror = () => startFallbackTicker();
@@ -810,7 +803,6 @@
       showToast('Demo balance replenished to $10,000.00', 'success');
     }
 
-    // --- TRADING FAMILIES & CONTROLS ---
     function setContractFamily(family) {
       contractFamily = family;
       ['even_odd', 'match_diff', 'over_under'].forEach(f => {
@@ -885,17 +877,16 @@
     function adjustStake(delta) { currentStake = Math.max(1, currentStake + delta); document.getElementById('stakeInput').value = currentStake; }
     function adjustTicks(delta) { currentTicks = Math.max(1, Math.min(10, currentTicks + delta)); document.getElementById('tickInput').value = currentTicks; }
 
-    // --- TRADE EXECUTION & LOOPING (TP/SL RESET WITH CONTINUOUS MEMORY) ---
     function executeTrade(type) {
       const targetProfit = parseFloat(document.getElementById('targetProfitInput').value) || 100;
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
 
       if (sessionNetProfit >= targetProfit) {
-        showToast(`Target Profit of $${targetProfit} reached! Resetting profit counter for new trades loop.`, 'success');
+        showToast(`Target Profit reached! Resetting profit counter for new trades loop.`, 'success');
         sessionNetProfit = 0;
       }
       if (sessionNetProfit <= -stopLoss) {
-        showToast(`Stop Loss limit of -$${stopLoss} reached! Resetting balance guard for new trades loop.`, 'warning');
+        showToast(`Stop Loss limit reached! Resetting balance guard for new trades loop.`, 'warning');
         sessionNetProfit = 0;
       }
 
@@ -924,9 +915,7 @@
       openTrades.push(trade);
       renderTrades();
 
-      setTimeout(() => {
-        settleTrade(tradeRef);
-      }, 2000);
+      setTimeout(() => { settleTrade(tradeRef); }, 2000);
     }
 
     function settleTrade(ref) {
@@ -976,10 +965,10 @@
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
 
       if (sessionNetProfit >= targetProfit) {
-        showToast(`🎉 Target Profit reached (+$${sessionNetProfit.toFixed(2)}). Session profit reset, continuing new trade loop...`, 'success');
+        showToast(`🎉 Target Profit reached. Session profit reset, continuing new trade loop...`, 'success');
         sessionNetProfit = 0;
       } else if (sessionNetProfit <= -stopLoss) {
-        showToast(`⚠️ Stop Loss reached (-$${Math.abs(sessionNetProfit.toFixed(2)}). Guard reset, continuing new trade loop...`, 'warning');
+        showToast(`⚠️ Stop Loss reached. Guard reset, continuing new trade loop...`, 'warning');
         sessionNetProfit = 0;
       }
 
@@ -1065,7 +1054,7 @@
         document.getElementById('autoBotBtnText').textContent = 'STOP AUTO TRADE';
         const pred = document.getElementById('scannerPrediction').value || 'EVEN';
         executeTrade(pred);
-        showToast('Auto Trade loop started with continuous memory & TP/SL reset active.', 'success');
+        showToast('Auto Trade loop started.', 'success');
       } else {
         btn.className = 'w-full py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs';
         document.getElementById('autoBotBtnText').textContent = 'AUTO TRADE';
@@ -1073,7 +1062,6 @@
       }
     }
 
-    // --- AI SCANNER ---
     function openAiScannerModal() { document.getElementById('aiScannerModal').classList.remove('hidden'); }
     function closeAiScannerModal() { document.getElementById('aiScannerModal').classList.add('hidden'); }
 
@@ -1107,7 +1095,7 @@
           document.getElementById('scannerBestMarket').value = chosen.name;
           document.getElementById('scannerPrediction').value = pred;
           document.getElementById('loadVolatilityBtn').textContent = `Load ${chosen.name}`;
-          showToast(`AI Scan complete! Best market: ${chosen.name}`, 'success');
+          showToast(`AI Scan complete!`, 'success');
         }
       }, 150);
     }
@@ -1116,10 +1104,9 @@
       currentMarket = scannedSymbolCode;
       document.getElementById('marketSelect').value = scannedSymbolCode;
       closeAiScannerModal();
-      showToast('Loaded AI scanned market successfully!', 'success');
+      showToast('Loaded market successfully!', 'success');
     }
 
-    // --- M-PESA CASHIER ---
     function openMpesaModal() {
       if (currentUser) {
         document.getElementById('modalPhoneNum').value = currentUser.phone || '0712345678';
@@ -1137,7 +1124,7 @@
     function submitMpesaTransaction() {
       const usdVal = parseFloat(document.getElementById('mpesaUsdInput').value) || 0;
       closeMpesaModal();
-      showToast('Safaricom STK Push sent to registered phone. Enter PIN...', 'warning');
+      showToast('Safaricom STK Push sent to registered phone...', 'warning');
       setTimeout(() => {
         realBalance += usdVal;
         updateBalanceDisplay();
