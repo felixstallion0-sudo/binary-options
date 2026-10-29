@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StallionsOption — Professional Trading Terminal</title>
+  <title>StallionsOption Terminal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -28,7 +28,6 @@
     .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #131822; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #2D3748; border-radius: 3px; }
-    
     .digit-ring-active {
       box-shadow: 0 0 16px rgba(6, 182, 212, 0.8), inset 0 0 8px rgba(6, 182, 212, 0.4);
       border-color: #06B6D4 !important;
@@ -41,7 +40,7 @@
   <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-  <!-- AUTHENTICATION GATE -->
+  <!-- AUTHENTICATION & SIGN UP GATE -->
   <div id="authGate" class="fixed inset-0 z-40 bg-brandDark flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-panelDark border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-6">
       <div class="flex items-center justify-center gap-3">
@@ -49,29 +48,97 @@
         <span class="text-2xl font-bold tracking-wider text-white">StallionsOption</span>
       </div>
 
-      <div class="text-center space-y-1">
-        <h2 class="text-lg font-bold text-gray-200">Connect Broker Workspace</h2>
-        <p class="text-xs text-gray-400">Secure API handshake via Deriv OAuth/Token gateway.</p>
+      <!-- LOGIN FORM -->
+      <div id="loginFormContainer" class="space-y-4">
+        <div class="text-center space-y-1">
+          <h2 class="text-xl font-bold text-gray-200">Log in</h2>
+          <p class="text-xs text-gray-400">Welcome back. Sign in to access your account.</p>
+        </div>
+        <form id="loginForm" class="space-y-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">Email or phone</label>
+            <input type="text" id="loginEmailPhone" placeholder="name@example.com or 0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <div class="flex justify-between items-center mb-1">
+              <label class="block text-xs font-medium text-gray-400">Password</label>
+              <button type="button" onclick="switchAuthView('forgot')" class="text-xs text-accentCyan hover:underline">Forgot password</button>
+            </div>
+            <input type="password" id="loginPassword" placeholder="At least 8 characters" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Log in</button>
+        </form>
+        <p class="text-center text-xs text-gray-400 pt-2">New to StallionsOption? <button onclick="switchAuthView('signup')" class="text-accentCyan font-semibold hover:underline">Create account</button></p>
       </div>
 
-      <form id="tokenAuthForm" class="space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Trader Name</label>
-          <input type="text" id="traderName" placeholder="e.g. Master Trader" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+      <!-- SIGN UP FORM -->
+      <div id="signupFormContainer" class="space-y-4 hidden">
+        <div class="text-center space-y-1">
+          <h2 class="text-xl font-bold text-gray-200">Create account</h2>
+          <p class="text-xs text-gray-400">Create an account today to start your trading journey.</p>
         </div>
+        <form id="signupForm" class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Full name</label>
+            <input type="text" id="signupName" placeholder="Jane Doe" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Email (Google account required)</label>
+            <input type="email" id="signupEmail" placeholder="name@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phone</label>
+            <input type="tel" id="signupPhone" placeholder="0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Password (Max 8 chars, 1 uppercase, 1 number)</label>
+            <input type="password" id="signupPassword" placeholder="Max 8 chars, e.g. Pass123" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div class="flex items-center gap-2 pt-1">
+            <input type="checkbox" id="signupAgree" required class="rounded bg-brandDark border-gray-700 text-accentBlue focus:ring-0">
+            <label for="signupAgree" class="text-[11px] text-gray-400">I agree to the disclosure.</label>
+          </div>
+          <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm mt-1">Create account</button>
+        </form>
+        <p class="text-center text-xs text-gray-400 pt-1">Already registered? <button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Log in</button></p>
+      </div>
 
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">Deriv API Token</label>
-          <input type="password" id="derivApiToken" placeholder="Paste your token here..." required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+      <!-- FORGOT PASSWORD FORM -->
+      <div id="forgotFormContainer" class="space-y-4 hidden">
+        <div class="text-center space-y-1">
+          <h2 class="text-xl font-bold text-gray-200">Reset password</h2>
+          <p class="text-xs text-gray-400">Enter your registered Gmail to receive a 6-digit OTP code.</p>
         </div>
+        <form id="forgotForm" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">Registered Gmail</label>
+            <input type="email" id="forgotEmail" placeholder="name@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Send 6-digit OTP</button>
+        </form>
+        <p class="text-center text-xs text-gray-400 pt-2"><button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Back to Log in</button></p>
+      </div>
 
-        <div>
-          <label class="block text-xs font-medium text-gray-400 mb-1">M-Pesa Phone Number</label>
-          <input type="tel" id="traderPhone" placeholder="0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+      <!-- OTP VERIFICATION FORM -->
+      <div id="otpFormContainer" class="space-y-4 hidden">
+        <div class="text-center space-y-1">
+          <h2 class="text-xl font-bold text-gray-200">Enter OTP Code</h2>
+          <p class="text-xs text-gray-400">Please enter the 6-digit code sent to your Gmail.</p>
+          <p id="otpDebugNotice" class="text-xs text-accentCyan font-mono font-bold pt-1"></p>
         </div>
+        <form id="otpForm" class="space-y-3">
+          <div>
+            <input type="text" id="otpInputCode" placeholder="Enter 6-digit code" maxlength="6" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2.5 text-center tracking-widest font-mono text-lg text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-400 mb-1">New Password (Max 8 chars, 1 uppercase, 1 number)</label>
+            <input type="password" id="newPasswordInput" placeholder="New Password" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <button type="submit" class="w-full bg-accentGreen hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Verify &amp; Change Password</button>
+        </form>
+        <p class="text-center text-xs text-gray-400 pt-2"><button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Cancel</button></p>
+      </div>
 
-        <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Authenticate &amp; Initialize</button>
-      </form>
     </div>
   </div>
 
@@ -101,7 +168,7 @@
       <div class="flex items-center gap-3 pl-3 border-l border-gray-800">
         <div id="userAvatar" class="w-7 h-7 rounded-full bg-accentBlue text-white font-bold flex items-center justify-center text-xs">U</div>
         <span id="userNameDisplay" class="text-xs font-medium text-gray-300">Trader</span>
-        <button onclick="logoutUser()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-accentRed border border-red-500/30 px-2.5 py-1.5 rounded-lg font-semibold">Disconnect</button>
+        <button onclick="logoutUser()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-accentRed border border-red-500/30 px-2.5 py-1.5 rounded-lg font-semibold">Log out</button>
       </div>
     </div>
   </header>
@@ -109,7 +176,7 @@
   <!-- MAIN TERMINAL LAYOUT -->
   <div class="flex-1 flex overflow-hidden">
     
-    <!-- LEFT / MAIN VIEWPORT (CHARTS & LOGS) -->
+    <!-- LEFT / MAIN VIEWPORT (CANVAS LINE CHART & DIGIT METERS) -->
     <div class="flex-1 flex flex-col border-r border-gray-800 bg-brandDark overflow-hidden">
       
       <!-- SUB HEADER: MARKET & TIMEFRAME CONTROLS -->
@@ -132,23 +199,18 @@
             </optgroup>
           </select>
 
-          <!-- CHART TYPE TOGGLE -->
-          <div class="flex items-center gap-1 bg-brandDark border border-gray-800 rounded px-1.5 py-0.5 text-[11px]">
-            <button onclick="setChartMode('line')" id="btnChartLine" class="px-2 py-1 rounded bg-accentBlue text-white font-bold transition-all">Tick (1s Line)</button>
-            <button onclick="setChartMode('candle')" id="btnChartCandle" class="px-2 py-1 rounded hover:text-white transition-all">Candles (1m)</button>
-          </div>
-
+          <span class="text-white font-bold text-xs">Line (1s Tick)</span>
           <span id="livePriceDisplay" class="font-mono text-sm text-accentBlue font-bold">---.--</span>
         </div>
 
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] bg-emerald-500/10 text-accentGreen font-semibold border border-emerald-500/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-accentGreen animate-pulse"></span> Live WS Feed Active
+          <span class="w-1.5 h-1.5 rounded-full bg-accentGreen animate-pulse"></span> Live Canvas Stream Active
         </span>
       </div>
 
-      <!-- EMBEDDED CHARTS & DIGIT DISTRIBUTION WRAPPER -->
+      <!-- CANVAS LINE CHART CONTAINER -->
       <div class="flex-1 relative bg-brandDark overflow-hidden flex flex-col">
-        <iframe id="derivChartFrame" src="https://charts.deriv.com/deriv/?symbol=1HZ75V&interval=1t&theme=dark" class="w-full h-full border-0" title="Deriv Chart"></iframe>
+        <canvas id="tickCanvas" class="w-full h-full block"></canvas>
 
         <!-- DIGIT FREQUENCY METERS BAR -->
         <div id="digitMetersPanel" class="absolute bottom-3 left-3 right-3 bg-panelDark/95 backdrop-blur border border-gray-800 rounded-2xl p-3 z-10 shadow-2xl transition-all">
@@ -208,12 +270,11 @@
     <!-- RIGHT CONTROL PANEL -->
     <div class="w-80 bg-panelDark flex flex-col p-4 gap-3.5 overflow-y-auto custom-scrollbar shrink-0 border-l border-gray-800">
       
-      <!-- CONTRACT FAMILY TABS -->
-      <div class="grid grid-cols-4 gap-1 bg-brandDark p-1 rounded-lg border border-gray-800 text-[10px] font-semibold text-center">
+      <!-- DIGIT OPTIONS TABS -->
+      <div class="grid grid-cols-3 gap-1 bg-brandDark p-1 rounded-lg border border-gray-800 text-[10px] font-semibold text-center">
         <button onclick="setContractFamily('even_odd')" id="famEvenOdd" class="py-1.5 rounded bg-accentBlue text-white transition-all">Even/Odd</button>
         <button onclick="setContractFamily('match_diff')" id="famMatchDiff" class="py-1.5 rounded text-gray-400 hover:text-white transition-all">Match/Diff</button>
         <button onclick="setContractFamily('over_under')" id="famOverUnder" class="py-1.5 rounded text-gray-400 hover:text-white transition-all">Over/Under</button>
-        <button onclick="setContractFamily('rise_fall')" id="famRiseFall" class="py-1.5 rounded text-gray-400 hover:text-white transition-all">Rise/Fall</button>
       </div>
 
       <button id="autoBotBtn" onclick="toggleAutoBot()" class="w-full py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 text-xs">
@@ -304,7 +365,6 @@
             <option value="even_odd">Even / Odd</option>
             <option value="match_diff">Match / Differ</option>
             <option value="over_under">Over / Under</option>
-            <option value="rise_fall">Rise / Fall</option>
           </select>
         </div>
         <div>
@@ -336,16 +396,12 @@
   <div id="mpesaModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="w-full max-w-lg bg-panelDark border border-gray-800 rounded-2xl p-6 shadow-2xl relative">
       <div class="flex justify-between items-center mb-4">
-        <h3 id="mpesaModalTitle" class="text-lg font-bold text-white">Deriv Broker &amp; M-Pesa Cashier</h3>
+        <h3 id="mpesaModalTitle" class="text-lg font-bold text-white">StallionsOption &amp; M-Pesa Cashier</h3>
         <button onclick="closeMpesaModal()" class="text-gray-400 hover:text-white text-sm font-semibold">✕</button>
       </div>
       <div class="space-y-4">
         <div>
-          <label class="block text-xs text-gray-400 mb-1">Authenticated Deriv Account ID</label>
-          <input type="text" id="modalDerivId" readonly class="w-full bg-brandDark border border-gray-700 rounded-lg p-2.5 text-sm text-accentCyan font-mono font-bold">
-        </div>
-        <div>
-          <label class="block text-xs text-gray-400 mb-1">M-Pesa Registered Phone Number</label>
+          <label class="block text-xs text-gray-400 mb-1">Registered Phone Number</label>
           <input type="text" id="modalPhoneNum" readonly class="w-full bg-brandDark border border-gray-700 rounded-lg p-2.5 text-sm text-white font-mono font-bold">
         </div>
         <div class="grid grid-cols-2 gap-3">
@@ -361,7 +417,7 @@
         <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-xs text-accentCyan">
           <strong>Gateway:</strong> Securely deposit or withdraw funds directly via M-Pesa STK push.
         </div>
-        <button onclick="submitMpesaTransaction()" class="w-full bg-accentGreen hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Confirm Broker STK Push</button>
+        <button onclick="submitMpesaTransaction()" class="w-full bg-accentGreen hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Confirm STK Push</button>
       </div>
     </div>
   </div>
@@ -369,11 +425,9 @@
   <script>
     const DERIV_APP_ID = '1089';
     const KES_USD_RATE = 130;
-    const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
     let ws = null;
     let currentMarket = '1HZ75V';
-    let chartMode = 'line';
     let contractFamily = 'even_odd';
     let selectedDigit = 4;
     let currentLastDigit = 0;
@@ -386,63 +440,49 @@
     let autoBotActive = false;
     let sessionNetProfit = 0;
     let scannedSymbolCode = '1HZ75V';
+    let currentPrice = 1000.00;
 
     let openTrades = [];
     let closedTrades = [];
+    let transactionHistory = [];
     let digitCounts = Array(10).fill(10);
     let totalTicksReceived = 100;
+    let priceHistory = [];
+
+    // Canvas setup
+    let canvas, ctx;
 
     window.addEventListener('DOMContentLoaded', () => {
-      checkInactivityAndSession();
-      initActivityTracker();
+      canvas = document.getElementById('tickCanvas');
+      ctx = canvas.getContext('2d');
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+
+      checkActiveSession();
       renderContractControls();
       renderDigitMeters();
-      connectLiveDigitStream();
+      initTickStream();
+      startCanvasLoop();
     });
 
-    function initActivityTracker() {
-      ['click', 'keypress', 'mousemove', 'scroll'].forEach(evt => {
-        window.addEventListener(evt, () => {
-          if (currentUser) {
-            sessionStorage.setItem('stallions_active_time', Date.now().toString());
-          }
-        }, { passive: true });
-      });
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
     }
 
-    function checkInactivityAndSession() {
-      const activeTime = sessionStorage.getItem('stallions_active_time');
-      const activeSession = sessionStorage.getItem('stallions_active_session');
-
-      if (activeTime) {
-        const elapsed = Date.now() - parseInt(activeTime, 10);
-        if (elapsed > SESSION_TIMEOUT_MS) {
-          sessionStorage.removeItem('stallions_active_session');
-          sessionStorage.removeItem('stallions_active_time');
-          showAuthGate('Session expired due to inactivity (>30 mins). Please reconnect.');
-          return;
-        }
-      }
-
-      if (activeSession) {
-        currentUser = JSON.parse(activeSession);
-        authorizeWithDerivToken(currentUser.token, currentUser.name, currentUser.phone);
-      } else {
-        showAuthGate();
-      }
+    // --- SECURITY & VALIDATION HELPERS ---
+    function isValidGmail(email) {
+      const re = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      return re.test(email);
     }
 
-    function showAuthGate(msg) {
-      document.getElementById('authGate').classList.remove('hidden');
-      if (msg) showToast(msg, 'warning');
-    }
-
-    function hideAuthGate() {
-      document.getElementById('authGate').classList.add('hidden');
-      document.getElementById('userNameDisplay').textContent = currentUser.name;
-      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
-      sessionStorage.setItem('stallions_active_session', JSON.stringify(currentUser));
-      sessionStorage.setItem('stallions_active_time', Date.now().toString());
+    function isValidPassword(password) {
+      // One uppercase, one number, max 8 characters
+      if (password.length > 8) return false;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      return hasUpper && hasNumber;
     }
 
     function showToast(message, type = 'info') {
@@ -456,115 +496,279 @@
       setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-2'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
-    document.getElementById('tokenAuthForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const name = document.getElementById('traderName').value.trim();
-      const token = document.getElementById('derivApiToken').value.trim();
-      const phone = document.getElementById('traderPhone').value.trim();
+    // --- AUTHENTICATION FLOWS ---
+    function switchAuthView(view) {
+      document.getElementById('loginFormContainer').classList.add('hidden');
+      document.getElementById('signupFormContainer').classList.add('hidden');
+      document.getElementById('forgotFormContainer').classList.add('hidden');
+      document.getElementById('otpFormContainer').classList.add('hidden');
 
-      if (!token) {
-        showToast('Please paste a valid Deriv API Token', 'error');
+      if (view === 'login') document.getElementById('loginFormContainer').classList.remove('hidden');
+      if (view === 'signup') document.getElementById('signupFormContainer').classList.remove('hidden');
+      if (view === 'forgot') document.getElementById('forgotFormContainer').classList.remove('hidden');
+      if (view === 'otp') document.getElementById('otpFormContainer').classList.remove('hidden');
+    }
+
+    let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+    let resetTargetEmail = '';
+    let generatedOtp = '';
+
+    // Sign Up Handler
+    document.getElementById('signupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+      const phone = document.getElementById('signupPhone').value.trim();
+      const password = document.getElementById('signupPassword').value;
+
+      if (!isValidGmail(email)) {
+        showToast('Only valid @gmail.com accounts are permitted!', 'error');
+        return;
+      }
+      if (!isValidPassword(password)) {
+        showToast('Password must have max 8 characters, at least 1 uppercase letter and 1 number.', 'error');
+        return;
+      }
+      if (globalUsersDb[email]) {
+        showToast('An account with this Gmail already exists. Please log in or reset password.', 'error');
         return;
       }
 
-      authorizeWithDerivToken(token, name, phone);
+      // Save user
+      globalUsersDb[email] = {
+        name, email, phone, password, realBalance: 100.00, openTrades: [], closedTrades: [], tx: []
+      };
+      localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
+      showToast('Account created successfully! Please log in.', 'success');
+      switchAuthView('login');
     });
 
-    function authorizeWithDerivToken(token, name, phone) {
-      showToast('Authenticating with Deriv Broker...', 'info');
-      let authenticated = false;
-      const authWs = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      
-      authWs.onopen = () => {
-        authWs.send(JSON.stringify({ authorize: token }));
-      };
+    // Login Handler
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const loginId = document.getElementById('loginEmailPhone').value.trim().toLowerCase();
+      const password = document.getElementById('loginPassword').value;
 
-      authWs.onmessage = (event) => {
-        const response = JSON.parse(event.data);
-        if (response.msg_type === 'authorize') {
-          if (!response.error) {
-            authenticated = true;
-            const authData = response.authorize;
-            currentUser = {
-              name: name || authData.fullname || 'Deriv Trader',
-              email: authData.email || 'trader@deriv.com',
-              derivId: authData.loginid || 'CR-LIVE',
-              phone: phone || '0712345678',
-              token: token
-            };
-            realBalance = parseFloat(authData.balance) || 0.00;
-            switchAccountMode('real');
-            hideAuthGate();
-            showToast(`Connected successfully to Deriv Account ${authData.loginid}`, 'success');
-          } else {
-            showToast(`Deriv Notice: ${response.error.message}`, 'error');
+      let foundUser = null;
+      for (let email in globalUsersDb) {
+        let u = globalUsersDb[email];
+        if (u.email === loginId || u.phone === loginId) {
+          if (u.password === password) {
+            foundUser = u;
+            break;
           }
-          authWs.close();
         }
-      };
+      }
 
-      setTimeout(() => {
-        if (!authenticated && document.getElementById('authGate').classList.contains('hidden') === false) {
-          currentUser = {
-            name: name || 'Deriv Trader',
-            email: 'trader@deriv.com',
-            derivId: 'CR-LINKED',
-            phone: phone || '0712345678',
-            token: token
-          };
-          switchAccountMode('real');
-          hideAuthGate();
-          showToast('Connected to Terminal Workspace', 'success');
-        }
-      }, 3000);
+      if (!foundUser) {
+        showToast('Invalid credentials or unauthorized account.', 'error');
+        return;
+      }
+
+      currentUser = foundUser;
+      realBalance = currentUser.realBalance || 100.00;
+      openTrades = currentUser.openTrades || [];
+      closedTrades = currentUser.closedTrades || [];
+      transactionHistory = currentUser.tx || [];
+
+      localStorage.setItem('stallions_active_session', JSON.stringify(currentUser));
+      hideAuthGate();
+      renderTrades();
+      renderTransactions();
+      showToast(`Welcome back, ${currentUser.name}!`, 'success');
+    });
+
+    // Forgot Password Handler
+    document.getElementById('forgotForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+      if (!globalUsersDb[email]) {
+        showToast('Email not found in database.', 'error');
+        return;
+      }
+      resetTargetEmail = email;
+      generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      document.getElementById('otpDebugNotice').textContent = `[Gmail Simulation OTP: ${generatedOtp}]`;
+      showToast('6-digit OTP code sent to your Gmail.', 'success');
+      switchAuthView('otp');
+    });
+
+    // OTP Verification Handler
+    document.getElementById('otpForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const enteredOtp = document.getElementById('otpInputCode').value.trim();
+      const newPass = document.getElementById('newPasswordInput').value;
+
+      if (enteredOtp !== generatedOtp) {
+        showToast('Invalid 6-digit OTP code!', 'error');
+        return;
+      }
+      if (!isValidPassword(newPass)) {
+        showToast('New password must have max 8 characters, 1 uppercase letter and 1 number.', 'error');
+        return;
+      }
+
+      globalUsersDb[resetTargetEmail].password = newPass;
+      localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
+      showToast('Password updated successfully! Please log in.', 'success');
+      switchAuthView('login');
+    });
+
+    function checkActiveSession() {
+      const active = localStorage.getItem('stallions_active_session');
+      if (active) {
+        currentUser = JSON.parse(active);
+        realBalance = currentUser.realBalance || 100.00;
+        openTrades = currentUser.openTrades || [];
+        closedTrades = currentUser.closedTrades || [];
+        transactionHistory = currentUser.tx || [];
+        hideAuthGate();
+        renderTrades();
+        renderTransactions();
+      } else {
+        showAuthGate();
+      }
+    }
+
+    function showAuthGate() {
+      document.getElementById('authGate').classList.remove('hidden');
+    }
+
+    function hideAuthGate() {
+      document.getElementById('authGate').classList.add('hidden');
+      document.getElementById('userNameDisplay').textContent = currentUser.name;
+      document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
     }
 
     function logoutUser() {
-      sessionStorage.removeItem('stallions_active_session');
-      sessionStorage.removeItem('stallions_active_time');
-      currentUser = null;
-      showAuthGate('Disconnected safely from Deriv Broker.');
-    }
-
-    function connectLiveDigitStream() {
-      if (ws) ws.close();
-      ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ ticks: currentMarket }));
-      };
-      ws.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.msg_type === 'tick' && data.tick) {
-          const price = parseFloat(data.tick.quote);
-          document.getElementById('livePriceDisplay').textContent = price.toFixed(2);
-          const digit = parseInt(price.toFixed(2).slice(-1));
-          currentLastDigit = digit;
-          digitCounts[digit]++;
-          totalTicksReceived++;
-          document.getElementById('activeCursorDigit').textContent = digit;
-          renderDigitMeters();
-        }
-      };
-      ws.onclose = () => setTimeout(connectLiveDigitStream, 3000);
-    }
-
-    function setChartMode(mode) {
-      chartMode = mode;
-      document.getElementById('btnChartLine').className = mode === 'line' ? 'px-2 py-1 rounded bg-accentBlue text-white font-bold transition-all' : 'px-2 py-1 rounded hover:text-white transition-all';
-      document.getElementById('btnChartCandle').className = mode === 'candle' ? 'px-2 py-1 rounded bg-accentBlue text-white font-bold transition-all' : 'px-2 py-1 rounded hover:text-white transition-all';
-      
-      const frame = document.getElementById('derivChartFrame');
-      const meterPanel = document.getElementById('digitMetersPanel');
-
-      if (mode === 'line') {
-        frame.src = `https://charts.deriv.com/deriv/?symbol=${currentMarket}&interval=1t&theme=dark`;
-        meterPanel.classList.remove('hidden');
-        showToast('Switched to 1-Tick Line Chart (1s)', 'info');
-      } else {
-        frame.src = `https://charts.deriv.com/deriv/?symbol=${currentMarket}&interval=1m&chartType=candles&theme=dark`;
-        meterPanel.classList.add('hidden');
-        showToast('Switched to Candlestick Chart (1m)', 'info');
+      if (currentUser) {
+        // Save state back to db
+        currentUser.realBalance = realBalance;
+        currentUser.openTrades = openTrades;
+        currentUser.closedTrades = closedTrades;
+        currentUser.tx = transactionHistory;
+        globalUsersDb[currentUser.email] = currentUser;
+        localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
       }
+      localStorage.removeItem('stallions_active_session');
+      currentUser = null;
+      showAuthGate();
+      showToast('Logged out securely. Credentials required to re-enter.', 'info');
+    }
+
+    function persistUserData() {
+      if (currentUser) {
+        currentUser.realBalance = realBalance;
+        currentUser.openTrades = openTrades;
+        currentUser.closedTrades = closedTrades;
+        currentUser.tx = transactionHistory;
+        globalUsersDb[currentUser.email] = currentUser;
+        localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
+      }
+    }
+
+    // --- LIVE WEBSOCKET TICK STREAM & CANVAS ENGINE ---
+    function initTickStream() {
+      try {
+        ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
+        ws.onopen = () => {
+          ws.send(JSON.stringify({ ticks: currentMarket }));
+        };
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.msg_type === 'tick' && data.tick) {
+            const price = parseFloat(data.tick.quote);
+            processNewPrice(price);
+          }
+        };
+        ws.onerror = () => startFallbackTicker();
+        ws.onclose = () => setTimeout(initTickStream, 3000);
+      } catch (err) {
+        startFallbackTicker();
+      }
+    }
+
+    function startFallbackTicker() {
+      setInterval(() => {
+        const delta = (Math.random() - 0.48) * 1.5;
+        currentPrice = Math.max(100, currentPrice + delta);
+        processNewPrice(currentPrice);
+      }, 1000);
+    }
+
+    function processNewPrice(price) {
+      currentPrice = price;
+      document.getElementById('livePriceDisplay').textContent = price.toFixed(2);
+      
+      const digit = parseInt(price.toFixed(2).slice(-1));
+      currentLastDigit = digit;
+      digitCounts[digit]++;
+      totalTicksReceived++;
+      document.getElementById('activeCursorDigit').textContent = digit;
+      renderDigitMeters();
+
+      priceHistory.push({ price, time: new Date().toLocaleTimeString() });
+      if (priceHistory.length > 60) priceHistory.shift();
+    }
+
+    function changeMarketSymbol(sym) {
+      currentMarket = sym;
+      priceHistory = [];
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ forget_all: 'ticks' }));
+        ws.send(JSON.stringify({ ticks: currentMarket }));
+      }
+      showToast(`Switched market to ${sym}`, 'info');
+    }
+
+    function startCanvasLoop() {
+      function render() {
+        if (ctx && canvas) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw grid lines
+          ctx.strokeStyle = '#1A202C';
+          ctx.lineWidth = 1;
+          for (let i = 0; i < canvas.height; i += 40) {
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(canvas.width, i);
+            ctx.stroke();
+          }
+
+          if (priceHistory.length > 1) {
+            const minP = Math.min(...priceHistory.map(p => p.price));
+            const maxP = Math.max(...priceHistory.map(p => p.price));
+            const range = maxP - minP || 1;
+            const pad = 40;
+            const usableH = canvas.height - pad * 2;
+            const stepW = canvas.width / Math.max(priceHistory.length - 1, 1);
+
+            // Draw line graph
+            ctx.strokeStyle = '#06B6D4';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            priceHistory.forEach((pt, idx) => {
+              const x = idx * stepW;
+              const y = canvas.height - pad - ((pt.price - minP) / range) * usableH;
+              if (idx === 0) ctx.moveTo(x, y);
+              else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Draw current price node
+            const lastPt = priceHistory[priceHistory.length - 1];
+            const lastX = (priceHistory.length - 1) * stepW;
+            const lastY = canvas.height - pad - ((lastPt.price - minP) / range) * usableH;
+            ctx.fillStyle = '#2563EB';
+            ctx.beginPath();
+            ctx.arc(lastX, lastY, 5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        requestAnimationFrame(render);
+      }
+      render();
     }
 
     function switchAccountMode(mode) {
@@ -574,7 +778,7 @@
       document.getElementById('replenishBtn').classList.toggle('hidden', mode === 'real');
       document.getElementById('depositBtn').classList.toggle('hidden', mode === 'demo');
       document.getElementById('withdrawBtn').classList.toggle('hidden', mode === 'demo');
-      document.getElementById('accountModeLabel').textContent = mode === 'demo' ? 'DEMO ACCOUNT' : 'REAL MONEY ACCOUNT (LINKED)';
+      document.getElementById('accountModeLabel').textContent = mode === 'demo' ? 'DEMO ACCOUNT' : 'REAL MONEY ACCOUNT';
       updateBalanceDisplay();
     }
 
@@ -590,16 +794,13 @@
       showToast('Demo balance replenished to $10,000.00', 'success');
     }
 
+    // --- TRADING FAMILIES & CONTROLS ---
     function setContractFamily(family) {
       contractFamily = family;
-      ['even_odd', 'match_diff', 'over_under', 'rise_fall'].forEach(f => {
-        const btnId = f === 'even_odd' ? 'famEvenOdd' : (f === 'match_diff' ? 'famMatchDiff' : (f === 'over_under' ? 'famOverUnder' : 'famRiseFall'));
+      ['even_odd', 'match_diff', 'over_under'].forEach(f => {
+        const btnId = f === 'even_odd' ? 'famEvenOdd' : (f === 'match_diff' ? 'famMatchDiff' : 'famOverUnder');
         document.getElementById(btnId).className = f === family ? 'py-1.5 rounded bg-accentBlue text-white transition-all' : 'py-1.5 rounded text-gray-400 hover:text-white transition-all';
       });
-
-      if (family === 'rise_fall') setChartMode('candle');
-      else setChartMode('line');
-
       renderContractControls();
     }
 
@@ -615,9 +816,9 @@
         `;
       } else if (contractFamily === 'match_diff') {
         container.innerHTML = `
-          <div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Match / Differ (Digit: <span id="selectedDigitDisp" class="text-accentCyan">${selectedDigit}</span>)</div>
+          <div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Match / Differ (Digit: <span class="text-accentCyan">${selectedDigit}</span>)</div>
           <div class="grid grid-cols-5 gap-1 pt-1">
-            ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" id="digitBtn${d}" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
+            ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
           </div>`;
         execContainer.innerHTML = `
           <button onclick="executeTrade('MATCH')" class="py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">MATCH</button>
@@ -625,19 +826,13 @@
         `;
       } else if (contractFamily === 'over_under') {
         container.innerHTML = `
-          <div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Over / Under (Barrier: <span id="selectedDigitDisp" class="text-accentCyan">${selectedDigit}</span>)</div>
+          <div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Over / Under (Barrier: <span class="text-accentCyan">${selectedDigit}</span>)</div>
           <div class="grid grid-cols-5 gap-1 pt-1">
-            ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" id="digitBtn${d}" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
+            ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
           </div>`;
         execContainer.innerHTML = `
           <button onclick="executeTrade('OVER')" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">OVER</button>
           <button onclick="executeTrade('UNDER')" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">UNDER</button>
-        `;
-      } else {
-        container.innerHTML = `<div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Rise / Fall</div><div class="text-xs text-gray-300">Predict if exit price is higher or lower than entry spot.</div>`;
-        execContainer.innerHTML = `
-          <button onclick="executeTrade('RISE')" class="py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">RISE</button>
-          <button onclick="executeTrade('FALL')" class="py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">FALL</button>
         `;
       }
     }
@@ -645,13 +840,6 @@
     function setSelectedDigit(d) {
       selectedDigit = d;
       renderContractControls();
-    }
-
-    function changeMarketSymbol(symbol) {
-      currentMarket = symbol;
-      setChartMode(chartMode);
-      connectLiveDigitStream();
-      showToast(`Switched market to ${symbol}`, 'info');
     }
 
     function renderDigitMeters() {
@@ -681,6 +869,7 @@
     function adjustStake(delta) { currentStake = Math.max(1, currentStake + delta); document.getElementById('stakeInput').value = currentStake; }
     function adjustTicks(delta) { currentTicks = Math.max(1, Math.min(10, currentTicks + delta)); document.getElementById('tickInput').value = currentTicks; }
 
+    // --- TRADE EXECUTION & LOOPING ---
     function executeTrade(type) {
       const targetProfit = parseFloat(document.getElementById('targetProfitInput').value) || 100;
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
@@ -749,7 +938,7 @@
 
       updateBalanceDisplay();
 
-      closedTrades.unshift({
+      const closedItem = {
         ref: trade.ref,
         type: `${trade.family.toUpperCase()} (${trade.type})`,
         market: trade.market,
@@ -758,9 +947,20 @@
         stake: trade.stake.toFixed(2),
         profit: profit.toFixed(2),
         won: won
+      };
+      closedTrades.unshift(closedItem);
+
+      transactionHistory.unshift({
+        timestamp: new Date().toLocaleTimeString(),
+        type: won ? 'Payout Win' : 'Stake Loss',
+        amount: won ? `+$${payout.toFixed(2)}` : `-$${trade.stake}`,
+        balance: accountMode === 'demo' ? demoBalance.toFixed(2) : realBalance.toFixed(2),
+        status: won ? 'Success' : 'Settled'
       });
 
+      persistUserData();
       renderTrades();
+      renderTransactions();
       showToast(`Trade ${trade.ref} ${won ? 'WON (+$' + profit.toFixed(2) + ')' : 'LOST (-$' + trade.stake + ')'}`, won ? 'success' : 'error');
 
       const targetProfit = parseFloat(document.getElementById('targetProfitInput').value) || 100;
@@ -820,6 +1020,23 @@
       }
     }
 
+    function renderTransactions() {
+      const txTbody = document.getElementById('txTable');
+      if (transactionHistory.length === 0) {
+        txTbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-600">No transactions recorded</td></tr>`;
+      } else {
+        txTbody.innerHTML = transactionHistory.map(tx => `
+          <tr class="border-b border-gray-800/50">
+            <td class="py-2 font-mono text-gray-400">${tx.timestamp}</td>
+            <td>${tx.type}</td>
+            <td class="font-bold">${tx.amount}</td>
+            <td>$${tx.balance}</td>
+            <td class="text-accentGreen font-semibold">${tx.status}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
     function switchLogTab(tab) {
       ['Open', 'Closed', 'Tx'].forEach(t => {
         document.getElementById(`tab${t}View`).classList.add('hidden');
@@ -845,6 +1062,7 @@
       }
     }
 
+    // --- AI SCANNER ---
     function openAiScannerModal() { document.getElementById('aiScannerModal').classList.remove('hidden'); }
     function closeAiScannerModal() { document.getElementById('aiScannerModal').classList.add('hidden'); }
 
@@ -855,14 +1073,8 @@
         { code: '1HZ25V', name: 'Volatility 25 (1s) Index' },
         { code: '1HZ50V', name: 'Volatility 50 (1s) Index' },
         { code: '1HZ75V', name: 'Volatility 75 (1s) Index' },
-        { code: '1HZ100V', name: 'Volatility 100 (1s) Index' },
-        { code: 'R_10', name: 'Volatility 10 Index' },
-        { code: 'R_25', name: 'Volatility 25 Index' },
-        { code: 'R_50', name: 'Volatility 50 Index' },
-        { code: 'R_75', name: 'Volatility 75 Index' },
-        { code: 'R_100', name: 'Volatility 100 Index' }
+        { code: '1HZ100V', name: 'Volatility 100 (1s) Index' }
       ];
-      
       const bar = document.getElementById('scannerBar');
       const progressText = document.getElementById('scannerProgressText');
       const tradeTypeSelect = document.getElementById('scannerTradeType').value;
@@ -877,15 +1089,9 @@
           scannedSymbolCode = chosen.code;
           
           let pred = 'EVEN';
-          if (tradeTypeSelect === 'even_odd') {
-            pred = Math.random() > 0.5 ? 'EVEN' : 'ODD';
-          } else if (tradeTypeSelect === 'match_diff') {
-            pred = Math.random() > 0.5 ? 'MATCH' : 'DIFFER';
-          } else if (tradeTypeSelect === 'over_under') {
-            pred = Math.random() > 0.5 ? 'OVER' : 'UNDER';
-          } else if (tradeTypeSelect === 'rise_fall') {
-            pred = Math.random() > 0.5 ? 'RISE' : 'FALL';
-          }
+          if (tradeTypeSelect === 'even_odd') pred = Math.random() > 0.5 ? 'EVEN' : 'ODD';
+          else if (tradeTypeSelect === 'match_diff') pred = Math.floor(Math.random() * 10).toString();
+          else if (tradeTypeSelect === 'over_under') pred = 'OVER 5';
 
           document.getElementById('scannerBestMarket').value = chosen.name;
           document.getElementById('scannerPrediction').value = pred;
@@ -898,18 +1104,13 @@
     function loadScannerVolatility() {
       currentMarket = scannedSymbolCode;
       document.getElementById('marketSelect').value = scannedSymbolCode;
-      
-      const chosenType = document.getElementById('scannerTradeType').value;
-      setContractFamily(chosenType);
-
-      connectLiveDigitStream();
       closeAiScannerModal();
-      showToast(`Loaded market and contract successfully!`, 'success');
+      showToast('Loaded AI scanned market successfully!', 'success');
     }
 
+    // --- M-PESA CASHIER ---
     function openMpesaModal() {
       if (currentUser) {
-        document.getElementById('modalDerivId').value = currentUser.derivId || 'CR9384210';
         document.getElementById('modalPhoneNum').value = currentUser.phone || '0712345678';
       }
       document.getElementById('mpesaModal').classList.remove('hidden');
@@ -929,7 +1130,16 @@
       setTimeout(() => {
         realBalance += usdVal;
         updateBalanceDisplay();
-        showToast(`Deposit of $${usdVal.toFixed(2)} synced to Deriv Account!`, 'success');
+        transactionHistory.unshift({
+          timestamp: new Date().toLocaleTimeString(),
+          type: 'M-Pesa Deposit',
+          amount: `+$${usdVal.toFixed(2)}`,
+          balance: realBalance.toFixed(2),
+          status: 'Completed'
+        });
+        persistUserData();
+        renderTransactions();
+        showToast(`Deposit of $${usdVal.toFixed(2)} credited successfully!`, 'success');
       }, 3500);
     }
   </script>
