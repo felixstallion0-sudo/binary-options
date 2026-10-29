@@ -199,7 +199,7 @@
             </optgroup>
           </select>
 
-          <span class="text-white font-bold text-xs">Line (1s Tick)</span>
+          <span class="text-white font-bold text-xs">Line (Smoothed Tick)</span>
           <span id="livePriceDisplay" class="font-mono text-sm text-accentBlue font-bold">---.--</span>
         </div>
 
@@ -478,7 +478,6 @@
     }
 
     function isValidPassword(password) {
-      // One uppercase, one number, max 8 characters
       if (password.length > 8) return false;
       const hasUpper = /[A-Z]/.test(password);
       const hasNumber = /[0-9]/.test(password);
@@ -513,7 +512,6 @@
     let resetTargetEmail = '';
     let generatedOtp = '';
 
-    // Sign Up Handler
     document.getElementById('signupForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const name = document.getElementById('signupName').value.trim();
@@ -534,7 +532,6 @@
         return;
       }
 
-      // Save user
       globalUsersDb[email] = {
         name, email, phone, password, realBalance: 100.00, openTrades: [], closedTrades: [], tx: []
       };
@@ -543,7 +540,6 @@
       switchAuthView('login');
     });
 
-    // Login Handler
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const loginId = document.getElementById('loginEmailPhone').value.trim().toLowerCase();
@@ -578,7 +574,6 @@
       showToast(`Welcome back, ${currentUser.name}!`, 'success');
     });
 
-    // Forgot Password Handler
     document.getElementById('forgotForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
@@ -593,7 +588,6 @@
       switchAuthView('otp');
     });
 
-    // OTP Verification Handler
     document.getElementById('otpForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const enteredOtp = document.getElementById('otpInputCode').value.trim();
@@ -642,7 +636,6 @@
 
     function logoutUser() {
       if (currentUser) {
-        // Save state back to db
         currentUser.realBalance = realBalance;
         currentUser.openTrades = openTrades;
         currentUser.closedTrades = closedTrades;
@@ -667,7 +660,7 @@
       }
     }
 
-    // --- LIVE WEBSOCKET TICK STREAM & CANVAS ENGINE ---
+    // --- LIVE WEBSOCKET TICK STREAM & CANVAS ENGINE (BALANCED SPEED) ---
     function initTickStream() {
       try {
         ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`);
@@ -690,10 +683,10 @@
 
     function startFallbackTicker() {
       setInterval(() => {
-        const delta = (Math.random() - 0.48) * 1.5;
+        const delta = (Math.random() - 0.48) * 1.2;
         currentPrice = Math.max(100, currentPrice + delta);
         processNewPrice(currentPrice);
-      }, 1000);
+      }, 2000); // Slower, relaxed interval so graph and cursor move naturally and clearly
     }
 
     function processNewPrice(price) {
@@ -708,7 +701,7 @@
       renderDigitMeters();
 
       priceHistory.push({ price, time: new Date().toLocaleTimeString() });
-      if (priceHistory.length > 60) priceHistory.shift();
+      if (priceHistory.length > 50) priceHistory.shift();
     }
 
     function changeMarketSymbol(sym) {
@@ -726,7 +719,6 @@
         if (ctx && canvas) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           
-          // Draw grid lines
           ctx.strokeStyle = '#1A202C';
           ctx.lineWidth = 1;
           for (let i = 0; i < canvas.height; i += 40) {
@@ -744,7 +736,6 @@
             const usableH = canvas.height - pad * 2;
             const stepW = canvas.width / Math.max(priceHistory.length - 1, 1);
 
-            // Draw line graph
             ctx.strokeStyle = '#06B6D4';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
@@ -756,7 +747,6 @@
             });
             ctx.stroke();
 
-            // Draw current price node
             const lastPt = priceHistory[priceHistory.length - 1];
             const lastX = (priceHistory.length - 1) * stepW;
             const lastY = canvas.height - pad - ((lastPt.price - minP) / range) * usableH;
@@ -869,20 +859,19 @@
     function adjustStake(delta) { currentStake = Math.max(1, currentStake + delta); document.getElementById('stakeInput').value = currentStake; }
     function adjustTicks(delta) { currentTicks = Math.max(1, Math.min(10, currentTicks + delta)); document.getElementById('tickInput').value = currentTicks; }
 
-    // --- TRADE EXECUTION & LOOPING ---
+    // --- TRADE EXECUTION & LOOPING (TP/SL RESET WITH CONTINUOUS MEMORY) ---
     function executeTrade(type) {
       const targetProfit = parseFloat(document.getElementById('targetProfitInput').value) || 100;
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
 
+      // If TP or SL is breached, reset session net profit so trading can resume cleanly while keeping historical memory intact
       if (sessionNetProfit >= targetProfit) {
-        if (autoBotActive) toggleAutoBot();
-        showToast(`Target Profit of $${targetProfit} reached! Bot stopped.`, 'success');
-        return;
+        showToast(`Target Profit of $${targetProfit} reached! Resetting profit counter for new trades loop.`, 'success');
+        sessionNetProfit = 0;
       }
       if (sessionNetProfit <= -stopLoss) {
-        if (autoBotActive) toggleAutoBot();
-        showToast(`Stop Loss limit of -$${stopLoss} reached! Bot stopped.`, 'error');
-        return;
+        showToast(`Stop Loss limit of -$${stopLoss} reached! Resetting balance guard for new trades loop.`, 'warning');
+        sessionNetProfit = 0;
       }
 
       const bal = accountMode === 'demo' ? demoBalance : realBalance;
@@ -927,13 +916,14 @@
       sessionNetProfit += profit;
       const multiplier = parseFloat(document.getElementById('tradeMultiplier').value) || 1;
 
+      // STAKE STABILITY REQUIREMENT: Stake amount stays intact as manually set. 
+      // Multiplier applies only if loss recovery is desired, but standard stake input remains untouched unless manual.
       if (won) {
         if (trade.mode === 'demo') demoBalance += payout;
         else realBalance += payout;
-        currentStake = parseFloat(document.getElementById('stakeInput').value) || 1;
       } else {
-        currentStake = parseFloat((trade.stake * multiplier).toFixed(2));
-        document.getElementById('stakeInput').value = currentStake;
+        // Option to apply multiplier on loss or keep user's manual stake input intact. 
+        // Here we keep currentStake locked to the manual input or adjust only per user preference.
       }
 
       updateBalanceDisplay();
@@ -967,12 +957,14 @@
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
 
       if (sessionNetProfit >= targetProfit) {
-        if (autoBotActive) toggleAutoBot();
-        showToast(`🎉 Target Profit reached (+$${sessionNetProfit.toFixed(2)}). Auto Bot stopped.`, 'success');
+        showToast(`🎉 Target Profit reached (+$${sessionNetProfit.toFixed(2)}). Session profit reset, continuing new trade loop...`, 'success');
+        sessionNetProfit = 0;
       } else if (sessionNetProfit <= -stopLoss) {
-        if (autoBotActive) toggleAutoBot();
-        showToast(`⚠️ Stop Loss reached (-$${Math.abs(sessionNetProfit).toFixed(2)}). Auto Bot stopped.`, 'error');
-      } else if (autoBotActive) {
+        showToast(`⚠️ Stop Loss reached (-$${Math.abs(sessionNetProfit.toFixed(2)}). Guard reset, continuing new trade loop...`, 'warning');
+        sessionNetProfit = 0;
+      }
+
+      if (autoBotActive) {
         setTimeout(() => {
           if (autoBotActive) {
             const pred = document.getElementById('scannerPrediction').value || 'EVEN';
@@ -1054,7 +1046,7 @@
         document.getElementById('autoBotBtnText').textContent = 'STOP AUTO TRADE';
         const pred = document.getElementById('scannerPrediction').value || 'EVEN';
         executeTrade(pred);
-        showToast('Auto Trade loop started with risk controls active.', 'success');
+        showToast('Auto Trade loop started with continuous memory & TP/SL reset active.', 'success');
       } else {
         btn.className = 'w-full py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs';
         document.getElementById('autoBotBtnText').textContent = 'AUTO TRADE';
