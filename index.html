@@ -68,9 +68,9 @@
           </div>
           <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Log in</button>
         </form>
-        <p class="text-center text-xs text-gray-400 pt-2">New to StallionsOption? <button onclick="switchAuthView('signup')" class="text-accentCyan font-semibold hover:underline">Create account</button></p>
+        <p class="text-center text-xs text-gray-400 pt-2">New to StallionsOption? <button type="button" onclick="switchAuthView('signup')" class="text-accentCyan font-semibold hover:underline">Create account</button></p>
         <div class="text-center pt-2 border-t border-gray-800">
-          <button onclick="factoryResetStorage()" class="text-[10px] text-red-400 hover:underline">⚠️ Clear Browser Cache / Reset App Data</button>
+          <button type="button" onclick="factoryResetStorage()" class="text-[10px] text-red-400 hover:underline">⚠️ Clear Browser Cache / Reset App Data</button>
         </div>
       </div>
 
@@ -83,15 +83,15 @@
         <form id="signupForm" class="space-y-3">
           <div>
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Full name</label>
-            <input type="text" id="signupName" placeholder="Felix" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+            <input type="text" id="signupName" placeholder="Jane Doe" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Email (Google @gmail.com required)</label>
-            <input type="email" id="signupEmail" placeholder="felixstallion0@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+            <input type="email" id="signupEmail" placeholder="name@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phone</label>
-            <input type="tel" id="signupPhone" placeholder="0719578436" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+            <input type="tel" id="signupPhone" placeholder="0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Password (At least 6 chars, 1 uppercase, 1 number)</label>
@@ -103,7 +103,7 @@
           </div>
           <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm mt-1">Create account</button>
         </form>
-        <p class="text-center text-xs text-gray-400 pt-1">Already registered? <button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Log in</button></p>
+        <p class="text-center text-xs text-gray-400 pt-1">Already registered? <button type="button" onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Log in</button></p>
       </div>
 
       <!-- FORGOT PASSWORD FORM -->
@@ -119,7 +119,7 @@
           </div>
           <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Send 6-digit OTP</button>
         </form>
-        <p class="text-center text-xs text-gray-400 pt-2"><button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Back to Log in</button></p>
+        <p class="text-center text-xs text-gray-400 pt-2"><button type="button" onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Back to Log in</button></p>
       </div>
 
       <!-- OTP VERIFICATION FORM -->
@@ -139,7 +139,7 @@
           </div>
           <button type="submit" class="w-full bg-accentGreen hover:bg-emerald-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Verify &amp; Change Password</button>
         </form>
-        <p class="text-center text-xs text-gray-400 pt-2"><button onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Cancel</button></p>
+        <p class="text-center text-xs text-gray-400 pt-2"><button type="button" onclick="switchAuthView('login')" class="text-accentCyan font-semibold hover:underline">Cancel</button></p>
       </div>
 
     </div>
@@ -477,7 +477,7 @@
 
     // --- UTILITIES & FACTORY RESET ---
     function factoryResetStorage() {
-      if (confirm('Are you sure you want to clear all local accounts and cache? This will fix any blocking loading errors.')) {
+      if (confirm('Are you sure you want to clear all local accounts and cache? This will reset local records.')) {
         localStorage.clear();
         location.reload();
       }
@@ -490,7 +490,6 @@
     }
 
     function isValidPassword(password) {
-      // Fixed: Minimum 6 chars, at least 1 uppercase letter, 1 number
       if (password.length < 6) return false;
       const hasUpper = /[A-Z]/.test(password);
       const hasNumber = /[0-9]/.test(password);
@@ -508,7 +507,7 @@
       setTimeout(() => { toast.classList.add('opacity-0', '-translate-y-2'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
-    // --- AUTHENTICATION FLOWS ---
+    // --- AUTHENTICATION FLOWS (FIXED TOGGLE) ---
     function switchAuthView(view) {
       document.getElementById('loginFormContainer').classList.add('hidden');
       document.getElementById('signupFormContainer').classList.add('hidden');
@@ -521,7 +520,6 @@
       if (view === 'otp') document.getElementById('otpFormContainer').classList.remove('hidden');
     }
 
-    let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
     let resetTargetEmail = '';
     let generatedOtp = '';
 
@@ -541,7 +539,7 @@
         return;
       }
       
-      globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+      let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       if (globalUsersDb[email]) {
         showToast('An account with this Gmail already exists. Please log in or reset password.', 'error');
         return;
@@ -560,7 +558,7 @@
       const loginId = document.getElementById('loginEmailPhone').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
 
-      globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+      let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       let foundUser = null;
       for (let email in globalUsersDb) {
         let u = globalUsersDb[email];
@@ -593,7 +591,7 @@
     document.getElementById('forgotForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
-      globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+      let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       if (!globalUsersDb[email]) {
         showToast('Email not found in database.', 'error');
         return;
@@ -619,7 +617,7 @@
         return;
       }
 
-      globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+      let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       if (globalUsersDb[resetTargetEmail]) {
         globalUsersDb[resetTargetEmail].password = newPass;
         localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
@@ -666,7 +664,7 @@
         currentUser.openTrades = openTrades;
         currentUser.closedTrades = closedTrades;
         currentUser.tx = transactionHistory;
-        globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+        let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
         globalUsersDb[currentUser.email] = currentUser;
         localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
       }
@@ -682,7 +680,7 @@
         currentUser.openTrades = openTrades;
         currentUser.closedTrades = closedTrades;
         currentUser.tx = transactionHistory;
-        globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
+        let globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
         globalUsersDb[currentUser.email] = currentUser;
         localStorage.setItem('stallions_users_db', JSON.stringify(globalUsersDb));
       }
