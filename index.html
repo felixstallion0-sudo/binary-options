@@ -40,6 +40,26 @@
   <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
+  <!-- NOTIFICATIONS MODAL -->
+  <div id="notificationsModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="w-full max-w-md bg-panelDark border border-gray-800 rounded-2xl p-6 shadow-2xl relative">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">🔔 Notifications</h3>
+        <button onclick="closeNotificationsModal()" class="text-gray-400 hover:text-white text-sm font-semibold">✕</button>
+      </div>
+      <div class="space-y-3 max-h-64 overflow-y-auto custom-scrollbar text-xs">
+        <div class="bg-brandDark p-3 rounded-xl border border-gray-800 space-y-1">
+          <div class="flex justify-between text-gray-400 text-[10px]"><span>System</span><span>Just now</span></div>
+          <p class="text-white font-medium">Welcome to StallionsOption Terminal. All trading algorithms &amp; AI scanners are online.</p>
+        </div>
+        <div class="bg-brandDark p-3 rounded-xl border border-gray-800 space-y-1">
+          <div class="flex justify-between text-gray-400 text-[10px]"><span>Security</span><span>2h ago</span></div>
+          <p class="text-white font-medium">Session token successfully authenticated via Secure Gateway.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AUTHENTICATION & SIGN UP GATE -->
   <div id="authGate" class="fixed inset-0 z-40 bg-brandDark flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-panelDark border border-gray-800 rounded-2xl p-8 shadow-2xl space-y-6">
@@ -89,13 +109,31 @@
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Email (Google @gmail.com required)</label>
             <input type="email" id="signupEmail" placeholder="name@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
-          <div>
-            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phone</label>
-            <input type="tel" id="signupPhone" placeholder="0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Country</label>
+              <select id="signupCountryCode" class="w-full bg-brandDark border border-gray-700 rounded-lg px-2 py-2 text-xs text-white focus:outline-none focus:border-accentBlue">
+                <option value="+254" selected>🇰🇪 +254 (KE)</option>
+                <option value="+256">🇺🇬 +256 (UG)</option>
+                <option value="+255">🇹🇿 +255 (TZ)</option>
+                <option value="+234">🇳🇬 +234 (NG)</option>
+                <option value="+27">🇿🇦 +27 (ZA)</option>
+                <option value="+1">🇺🇸 +1 (US)</option>
+                <option value="+44">🇬🇧 +44 (UK)</option>
+              </select>
+            </div>
+            <div class="col-span-2">
+              <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phone number</label>
+              <input type="tel" id="signupPhone" placeholder="712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+            </div>
           </div>
           <div>
             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Password (At least 6 chars, 1 uppercase, 1 number)</label>
             <input type="password" id="signupPassword" placeholder="e.g. Pass123" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" placeholder="Re-enter password" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div class="flex items-center gap-2 pt-1">
             <input type="checkbox" id="signupAgree" required class="rounded bg-brandDark border-gray-700 text-accentBlue focus:ring-0">
@@ -169,6 +207,11 @@
       <button id="withdrawBtn" onclick="openMpesaModal()" class="hidden text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 px-3 py-1.5 rounded-lg border border-gray-700">Withdraw</button>
 
       <div class="flex items-center gap-3 pl-3 border-l border-gray-800">
+        <!-- NOTIFICATIONS BELL -->
+        <button onclick="openNotificationsModal()" class="w-8 h-8 rounded-full bg-brandDark hover:bg-gray-800 text-gray-300 border border-gray-700 flex items-center justify-center relative">
+          🔔
+          <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-accentRed"></span>
+        </button>
         <div id="userAvatar" class="w-7 h-7 rounded-full bg-accentBlue text-white font-bold flex items-center justify-center text-xs">U</div>
         <span id="userNameDisplay" class="text-xs font-medium text-gray-300">Trader</span>
         <button onclick="logoutUser()" class="text-xs bg-red-500/10 hover:bg-red-500/20 text-accentRed border border-red-500/30 px-2.5 py-1.5 rounded-lg font-semibold">Log out</button>
@@ -206,8 +249,19 @@
           <span id="livePriceDisplay" class="font-mono text-sm text-accentBlue font-bold">---.--</span>
         </div>
 
+        <!-- TIMEFRAMES BAR -->
+        <div class="flex items-center gap-1 bg-brandDark p-1 rounded-lg border border-gray-800 text-[11px] font-semibold">
+          <button onclick="setTimeframe('Tick')" id="tfTick" class="px-2 py-0.5 rounded bg-accentBlue text-white">Tick</button>
+          <button onclick="setTimeframe('1m')" id="tf1m" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">1m</button>
+          <button onclick="setTimeframe('5m')" id="tf5m" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">5m</button>
+          <button onclick="setTimeframe('30m')" id="tf30m" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">30m</button>
+          <button onclick="setTimeframe('1h')" id="tf1h" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">1h</button>
+          <button onclick="setTimeframe('4d')" id="tf4d" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">4d</button>
+          <button onclick="setTimeframe('1d')" id="tf1d" class="px-2 py-0.5 rounded text-gray-400 hover:text-white">1d</button>
+        </div>
+
         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] bg-emerald-500/10 text-accentGreen font-semibold border border-emerald-500/20">
-          <span class="w-1.5 h-1.5 rounded-full bg-accentGreen animate-pulse"></span> Live Canvas Stream Active
+          <span class="w-1.5 h-1.5 rounded-full bg-accentGreen animate-pulse"></span> Live Stream Active
         </span>
       </div>
 
@@ -375,7 +429,7 @@
           <input type="text" id="scannerBestMarket" value="Click 'Scan markets' to begin" class="w-full bg-brandDark border border-gray-700 rounded-lg p-2.5 text-sm text-accentCyan font-bold" readonly>
         </div>
         <div>
-          <label class="block text-xs text-gray-400 mb-1">Prediction</label>
+          <label class="block text-xs text-gray-400 mb-1">Prediction Direction</label>
           <input type="text" id="scannerPrediction" value="---" class="w-full bg-brandDark border border-gray-700 rounded-lg p-2.5 text-sm text-accentGreen font-bold" readonly>
         </div>
         <div>
@@ -443,6 +497,8 @@
     let autoBotActive = false;
     let sessionNetProfit = 0;
     let scannedSymbolCode = '1HZ75V';
+    let scannedTradeFamily = 'even_odd';
+    let scannedPredictionType = 'EVEN';
     let currentPrice = 1000.00;
 
     let openTrades = [];
@@ -524,8 +580,11 @@
       e.preventDefault();
       const name = document.getElementById('signupName').value.trim();
       const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-      const phone = document.getElementById('signupPhone').value.trim();
+      const countryCode = document.getElementById('signupCountryCode').value;
+      const rawPhone = document.getElementById('signupPhone').value.trim();
+      const phone = countryCode + rawPhone;
       const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
       if (!isValidGmail(email)) {
         showToast('Only valid @gmail.com accounts are permitted!', 'error');
@@ -533,6 +592,10 @@
       }
       if (!isValidPassword(password)) {
         showToast('Password must be at least 6 characters with 1 uppercase letter and 1 number.', 'error');
+        return;
+      }
+      if (password !== confirmPassword) {
+        showToast('Passwords do not match!', 'error');
         return;
       }
       
@@ -702,13 +765,18 @@
 
     function startFallbackTicker() {
       setInterval(() => {
-        const delta = (Math.random() - 0.48) * 1.2;
+        const delta = (Math.random() - 0.48) * 0.8;
         currentPrice = Math.max(100, currentPrice + delta);
         processNewPrice(currentPrice);
-      }, 2000);
+      }, 1000);
     }
 
+    let lastTickTime = 0;
     function processNewPrice(price) {
+      const now = Date.now();
+      if (now - lastTickTime < 900) return; // permanent stable pacing
+      lastTickTime = now;
+
       currentPrice = price;
       document.getElementById('livePriceDisplay').textContent = price.toFixed(2);
       
@@ -720,7 +788,7 @@
       renderDigitMeters();
 
       priceHistory.push({ price, time: new Date().toLocaleTimeString() });
-      if (priceHistory.length > 50) priceHistory.shift();
+      if (priceHistory.length > 40) priceHistory.shift();
     }
 
     function changeMarketSymbol(sym) {
@@ -731,6 +799,14 @@
         ws.send(JSON.stringify({ ticks: currentMarket }));
       }
       showToast(`Switched market to ${sym}`, 'info');
+    }
+
+    function setTimeframe(tf) {
+      ['Tick', '1m', '5m', '30m', '1h', '4d', '1d'].forEach(t => {
+        const btn = document.getElementById(`tf${t}`);
+        if (btn) btn.className = t === tf ? 'px-2 py-0.5 rounded bg-accentBlue text-white' : 'px-2 py-0.5 rounded text-gray-400 hover:text-white';
+      });
+      showToast(`Timeframe set to ${tf}`, 'info');
     }
 
     function startCanvasLoop() {
@@ -800,7 +876,7 @@
       demoBalance = 10000.00;
       sessionNetProfit = 0;
       updateBalanceDisplay();
-      showToast('Demo balance replenished to $10,000.00', 'success');
+      showToast('Demo balance replenished instantly to $10,000.00', 'success');
     }
 
     function setContractFamily(family) {
@@ -819,8 +895,8 @@
       if (contractFamily === 'even_odd') {
         container.innerHTML = `<div class="text-[10px] text-gray-400 font-semibold uppercase">Contract: Even / Odd</div><div class="text-xs text-gray-300">Predict if exit digit is even or odd.</div>`;
         execContainer.innerHTML = `
-          <button onclick="executeTrade('EVEN')" class="py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">EVEN</button>
-          <button onclick="executeTrade('ODD')" class="py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">ODD</button>
+          <button id="execBtnEven" onclick="executeTrade('EVEN')" class="py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">EVEN</button>
+          <button id="execBtnOdd" onclick="executeTrade('ODD')" class="py-3 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">ODD</button>
         `;
       } else if (contractFamily === 'match_diff') {
         container.innerHTML = `
@@ -829,8 +905,8 @@
             ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
           </div>`;
         execContainer.innerHTML = `
-          <button onclick="executeTrade('MATCH')" class="py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">MATCH</button>
-          <button onclick="executeTrade('DIFFER')" class="py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">DIFFER</button>
+          <button id="execBtnMatch" onclick="executeTrade('MATCH')" class="py-3 bg-accentBlue hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg text-xs transition-all">MATCH</button>
+          <button id="execBtnDiffer" onclick="executeTrade('DIFFER')" class="py-3 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">DIFFER</button>
         `;
       } else if (contractFamily === 'over_under') {
         container.innerHTML = `
@@ -839,8 +915,8 @@
             ${[0,1,2,3,4,5,6,7,8,9].map(d => `<button onclick="setSelectedDigit(${d})" class="py-1 rounded text-xs font-bold ${d === selectedDigit ? 'bg-accentCyan text-black' : 'bg-brandDark text-gray-300 border border-gray-700'}">${d}</button>`).join('')}
           </div>`;
         execContainer.innerHTML = `
-          <button onclick="executeTrade('OVER')" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">OVER</button>
-          <button onclick="executeTrade('UNDER')" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">UNDER</button>
+          <button id="execBtnOver" onclick="executeTrade('OVER')" class="py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">OVER</button>
+          <button id="execBtnUnder" onclick="executeTrade('UNDER')" class="py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg text-xs transition-all">UNDER</button>
         `;
       }
     }
@@ -1064,6 +1140,8 @@
 
     function openAiScannerModal() { document.getElementById('aiScannerModal').classList.remove('hidden'); }
     function closeAiScannerModal() { document.getElementById('aiScannerModal').classList.add('hidden'); }
+    function openNotificationsModal() { document.getElementById('notificationsModal').classList.remove('hidden'); }
+    function closeNotificationsModal() { document.getElementById('notificationsModal').classList.add('hidden'); }
 
     function runAiMarketScan() {
       let step = 0;
@@ -1086,14 +1164,14 @@
           clearInterval(interval);
           const chosen = symbols[Math.floor(Math.random() * symbols.length)];
           scannedSymbolCode = chosen.code;
+          scannedTradeFamily = tradeTypeSelect;
           
-          let pred = 'EVEN';
-          if (tradeTypeSelect === 'even_odd') pred = Math.random() > 0.5 ? 'EVEN' : 'ODD';
-          else if (tradeTypeSelect === 'match_diff') pred = Math.floor(Math.random() * 10).toString();
-          else if (tradeTypeSelect === 'over_under') pred = 'OVER 5';
+          if (tradeTypeSelect === 'even_odd') scannedPredictionType = Math.random() > 0.5 ? 'EVEN' : 'ODD';
+          else if (tradeTypeSelect === 'match_diff') scannedPredictionType = Math.random() > 0.5 ? 'MATCH' : 'DIFFER';
+          else if (tradeTypeSelect === 'over_under') scannedPredictionType = Math.random() > 0.5 ? 'OVER' : 'UNDER';
 
           document.getElementById('scannerBestMarket').value = chosen.name;
-          document.getElementById('scannerPrediction').value = pred;
+          document.getElementById('scannerPrediction').value = scannedPredictionType;
           document.getElementById('loadVolatilityBtn').textContent = `Load ${chosen.name}`;
           showToast(`AI Scan complete!`, 'success');
         }
@@ -1103,8 +1181,29 @@
     function loadScannerVolatility() {
       currentMarket = scannedSymbolCode;
       document.getElementById('marketSelect').value = scannedSymbolCode;
+      setContractFamily(scannedTradeFamily);
       closeAiScannerModal();
-      showToast('Loaded market successfully!', 'success');
+      showToast(`Loaded market ${scannedSymbolCode} & highlighted ${scannedPredictionType}!`, 'success');
+
+      // Automatically highlight the matched direction button on the interface
+      setTimeout(() => {
+        const btnMap = {
+          'EVEN': 'execBtnEven',
+          'ODD': 'execBtnOdd',
+          'MATCH': 'execBtnMatch',
+          'DIFFER': 'execBtnDiffer',
+          'OVER': 'execBtnOver',
+          'UNDER': 'execBtnUnder'
+        };
+        const targetBtnId = btnMap[scannedPredictionType];
+        if (targetBtnId) {
+          const btn = document.getElementById(targetBtnId);
+          if (btn) {
+            btn.classList.add('ring-4', 'ring-cyan-400', 'scale-105');
+            setTimeout(() => btn.classList.remove('ring-4', 'ring-cyan-400', 'scale-105'), 3000);
+          }
+        }
+      }, 300);
     }
 
     function openMpesaModal() {
