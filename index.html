@@ -57,14 +57,14 @@
         <form id="loginForm" class="space-y-4">
           <div>
             <label class="block text-xs font-medium text-gray-400 mb-1">Email or phone</label>
-            <input type="text" id="loginEmailPhone" placeholder="name@example.com or 0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+            <input type="text" id="loginEmailPhone" placeholder="name@gmail.com or 0712345678" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
             <div class="flex justify-between items-center mb-1">
               <label class="block text-xs font-medium text-gray-400">Password</label>
               <button type="button" onclick="switchAuthView('forgot')" class="text-xs text-accentCyan hover:underline">Forgot password</button>
             </div>
-            <input type="password" id="loginPassword" placeholder="At least 8 characters" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
+            <input type="password" id="loginPassword" placeholder="Max 8 characters" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <button type="submit" class="w-full bg-accentBlue hover:bg-blue-600 text-white font-semibold py-2.5 rounded-lg transition-colors shadow-lg text-sm">Log in</button>
         </form>
@@ -83,7 +83,7 @@
             <input type="text" id="signupName" placeholder="Jane Doe" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
-            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Email (Google account required)</label>
+            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Email (Google @gmail.com required)</label>
             <input type="email" id="signupEmail" placeholder="name@gmail.com" required class="w-full bg-brandDark border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-accentBlue">
           </div>
           <div>
@@ -449,7 +449,6 @@
     let totalTicksReceived = 100;
     let priceHistory = [];
 
-    // Canvas setup
     let canvas, ctx;
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -467,8 +466,10 @@
 
     function resizeCanvas() {
       const container = canvas.parentElement;
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+      if (container) {
+        canvas.width = container.clientWidth;
+        canvas.height = container.clientHeight;
+      }
     }
 
     // --- SECURITY & VALIDATION HELPERS ---
@@ -545,6 +546,7 @@
       const loginId = document.getElementById('loginEmailPhone').value.trim().toLowerCase();
       const password = document.getElementById('loginPassword').value;
 
+      globalUsersDb = JSON.parse(localStorage.getItem('stallions_users_db') || '{}');
       let foundUser = null;
       for (let email in globalUsersDb) {
         let u = globalUsersDb[email];
@@ -686,7 +688,7 @@
         const delta = (Math.random() - 0.48) * 1.2;
         currentPrice = Math.max(100, currentPrice + delta);
         processNewPrice(currentPrice);
-      }, 2000); // Slower, relaxed interval so graph and cursor move naturally and clearly
+      }, 2000);
     }
 
     function processNewPrice(price) {
@@ -864,7 +866,6 @@
       const targetProfit = parseFloat(document.getElementById('targetProfitInput').value) || 100;
       const stopLoss = parseFloat(document.getElementById('stopLossInput').value) || 50;
 
-      // If TP or SL is breached, reset session net profit so trading can resume cleanly while keeping historical memory intact
       if (sessionNetProfit >= targetProfit) {
         showToast(`Target Profit of $${targetProfit} reached! Resetting profit counter for new trades loop.`, 'success');
         sessionNetProfit = 0;
@@ -914,16 +915,10 @@
       const profit = won ? (trade.stake * 0.9522) : -trade.stake;
 
       sessionNetProfit += profit;
-      const multiplier = parseFloat(document.getElementById('tradeMultiplier').value) || 1;
 
-      // STAKE STABILITY REQUIREMENT: Stake amount stays intact as manually set. 
-      // Multiplier applies only if loss recovery is desired, but standard stake input remains untouched unless manual.
       if (won) {
         if (trade.mode === 'demo') demoBalance += payout;
         else realBalance += payout;
-      } else {
-        // Option to apply multiplier on loss or keep user's manual stake input intact. 
-        // Here we keep currentStake locked to the manual input or adjust only per user preference.
       }
 
       updateBalanceDisplay();
